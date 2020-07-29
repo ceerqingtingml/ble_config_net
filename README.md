@@ -1,8 +1,10 @@
-# ble_config_net
-<<<<<<< HEAD
-This demo is used for bluetooth config wifi connection to ap.
+# ble_config_net demo
 
-##run result:
+This demo is used to set up wifi connection via ble, and it is based on esp-idf V4.0
+
+test result:
+
+```bash
 mali@ubuntu:~/learning/my_blufi_demo/ble_config_net/ble_config_net$ make monitor
 Toolchain path: /home/mali/.espressif/tools/xtensa-esp32-elf/esp-2019r2-8.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gcc
 Toolchain version: esp-2019r2
@@ -156,7 +158,4 @@ I (23039) tcpip_adapter: sta ip: 192.168.3.144, mask: 255.255.255.0, gw: 192.168
 I (23039) wifi station: got ip:192.168.3.144
 I (23039) wifi station: connected to ap SSID:mali-test password:espressif
 
-
-=======
-This demo is used to set up wifi connection via ble.
->>>>>>> 212537450d093116af64b71e70264213f64012ec
+```
