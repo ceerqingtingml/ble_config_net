@@ -1,2 +1,2 @@
 # ble_config_net
-This demo is used for bluetooth config wifi connection to ap.
+This demo is used to set up wifi connection via ble.
