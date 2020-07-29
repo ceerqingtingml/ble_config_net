@@ -1,4 +1,3 @@
-# if 0
 /*
    This example code is in the Public Domain (or CC0 licensed, at your option.)
 
@@ -24,6 +23,8 @@
 #include "ble_spp_server.h"
 
 #define GATTS_TABLE_TAG  "GATTS_SPP_DEMO"
+#define trace_log() ets_printf("%s:%d, %s\n", __FILE__, __LINE__, __FUNCTION__)
+
 
 #define SPP_PROFILE_NUM             1
 #define SPP_PROFILE_APP_IDX         0
@@ -435,11 +436,10 @@ void spp_heartbeat_task(void * arg)
 void spp_cmd_task(void * arg)
 {
     uint8_t * cmd_id;
-
     for(;;){
         vTaskDelay(50 / portTICK_PERIOD_MS);
         if(xQueueReceive(cmd_cmd_queue, &cmd_id, portMAX_DELAY)) {
-            printf("[mali]spp_cmd_task,xQueueReceive receive data from client and free buffer\n")
+            printf("[%s,%d]xQueueReceive receive data from client and free buffer\n", __func__, __LINE__);
             esp_log_buffer_char(GATTS_TABLE_TAG,(char *)(cmd_id),strlen((char *)cmd_id));
             free(cmd_id);
         }
@@ -463,16 +463,16 @@ static void spp_task_init(void)
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
     esp_err_t err;
-    ESP_LOGE(GATTS_TABLE_TAG, "GAP_EVT, event %d\n", event);
+    ESP_LOGE(GATTS_TABLE_TAG, "[%s,%d]GAP_EVT, event %d\n", __func__, __LINE__, event);
 
     switch (event) {
-    case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT:
+    case ESP_GAP_BLE_ADV_DATA_RAW_SET_COMPLETE_EVT: //4
         esp_ble_gap_start_advertising(&spp_adv_params);
         break;
-    case ESP_GAP_BLE_ADV_START_COMPLETE_EVT:
+    case ESP_GAP_BLE_ADV_START_COMPLETE_EVT: //6
         //advertising start complete event to indicate advertising start successfully or failed
         if((err = param->adv_start_cmpl.status) != ESP_BT_STATUS_SUCCESS) {
-            ESP_LOGE(GATTS_TABLE_TAG, "Advertising start failed: %s\n", esp_err_to_name(err));
+            ESP_LOGE(GATTS_TABLE_TAG, "[%s,%d]Advertising start failed: %s\n", __func__, __LINE__, esp_err_to_name(err));
         }
         break;
     default:
@@ -514,11 +514,19 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_
                         ESP_LOGE(GATTS_TABLE_TAG, "%s malloc failed\n", __func__);
                         break;
                     }
-                    printf("[mali]spp_mtu_size:%d,p_data->write.value:%s,len:%d\n",spp_mtu_size,p_data->write.value,p_data->write.len);
+                    printf("[%s,%d]spp_mtu_size:%d,p_data->write.value:%s,len:%d\n", __func__, __LINE__, spp_mtu_size,p_data->write.value,p_data->write.len);
                     memset(spp_cmd_buff,0x0,(spp_mtu_size - 3));
                     memcpy(spp_cmd_buff,p_data->write.value,p_data->write.len);
-                    printf("[mali]ESP_GATTS_WRITE_EVT spp_cmd_buff:%s\n",spp_cmd_buff);
+                    printf("[%s,%d]ESP_GATTS_WRITE_EVT spp_cmd_buff:%s\n", __func__, __LINE__, spp_cmd_buff);
                     xQueueSend(cmd_cmd_queue,&spp_cmd_buff,10/portTICK_PERIOD_MS);
+                    {
+                        char ssid[32] = {0};      
+                        char password[64] = {0}; 
+                        sscanf((char*)spp_cmd_buff, "%s %s", ssid, password);
+                        printf("ssid:%s,password:%s\n", ssid, password);
+                        wifi_init_sta(ssid, password);
+                    }
+
                 }else if(res == SPP_IDX_SPP_DATA_NTF_CFG){
                     if((p_data->write.len == 2)&&(p_data->write.value[0] == 0x01)&&(p_data->write.value[1] == 0x00)){
                         enable_data_ntf = true;
@@ -655,7 +663,7 @@ void ble_spp_init()
 {
     esp_err_t ret;
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();
-
+    trace_log();
     ESP_ERROR_CHECK(esp_bt_controller_mem_release(ESP_BT_MODE_CLASSIC_BT));
 
     ret = esp_bt_controller_init(&bt_cfg);
@@ -685,7 +693,8 @@ void ble_spp_init()
     esp_ble_gatts_register_callback(gatts_event_handler);
     esp_ble_gap_register_callback(gap_event_handler);
     esp_ble_gatts_app_register(ESP_SPP_APP_ID);
+    spp_task_init();
 
     return;
+
 }
-#endif

@@ -1,3 +1,5 @@
+#ifndef _BLE_SPP_SERVER_H
+#define _BLE_SPP_SERVER_H
 /*
    This example code is in the Public Domain (or CC0 licensed, at your option.)
 
@@ -51,3 +53,5 @@ enum{
 
     SPP_IDX_NB,
 };
+
+#endif
