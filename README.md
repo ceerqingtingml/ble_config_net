@@ -1,4 +1,5 @@
 # ble_config_net
+<<<<<<< HEAD
 This demo is used for bluetooth config wifi connection to ap.
 
 ##run result:
@@ -156,3 +157,6 @@ I (23039) wifi station: got ip:192.168.3.144
 I (23039) wifi station: connected to ap SSID:mali-test password:espressif
 
 
+=======
+This demo is used to set up wifi connection via ble.
+>>>>>>> 212537450d093116af64b71e70264213f64012ec
